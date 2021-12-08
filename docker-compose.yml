@@ -1,0 +1,48 @@
+version: '3.5'
+services:
+  mariadb:
+    container_name: ${CONTENEDOR_MARIADB}
+    image: 'bitnami/mariadb:10.5'
+    ports:  # Ports to expose
+      - "3399:3306"
+    volumes:
+      - ./DB:/bitnami/mariadb/data
+    environment:
+      - 'ALLOW_EMPTY_PASSWORD=yes'
+    networks:
+      - symfony-network
+  
+  ubuntu-dev:
+    container_name: ${CONTENEDOR_PHP}
+    build:
+      context: docker/php
+      args:
+        UID: $U_ID
+    volumes:
+      - ./www-data:/appdata/www
+      - ./docker/php/php.ini-development:/usr/local/etc/php/php.ini
+      # ./docker/php/php.ini-development:/usr/local/etc/php/php.ini-production
+    networks:
+      - symfony-network
+
+  #Nginx Service
+  webserver:
+    build:
+      context: docker/nginx
+      args:
+        UID: $U_ID
+    container_name: webserver
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - ./www-data/:/appdata/www/
+    ports:
+      - "8001:80"
+      - "8002:81"
+    depends_on:
+      - ubuntu-dev
+    networks:
+      - symfony-network
+
+networks:
+  symfony-network:

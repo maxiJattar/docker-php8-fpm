@@ -1,0 +1,4 @@
+Modificar nginx/default.conf
+Mapear php.ini
+
+##RUN echo "alias sf=/appdata/www/bin/console" >> /home/appuser/.bashrc
